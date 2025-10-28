@@ -1,16 +1,13 @@
 import gpxpy
-from dataclasses import dataclass
+from Backend.route_storage import Route, RoutePoint
+from typing import List
 
-@dataclass
-class RoutePoint:
-    lat: float
-    lon: float
 
 class GPXParser:
     def __init__(self, gpx_data: bytes):
         self.gpx_data = gpx_data
 
-    def parse(self) -> list[RoutePoint]:
+    def parse(self) -> List[RoutePoint]:
         """
         Function to parse the GPX data
         Returns: a list of RoutePoint objects"""
@@ -22,7 +19,7 @@ class GPXParser:
                 for segment in track.segments:
                     for point in segment.points:
                         route_points.append(RoutePoint(lat=point.latitude, lon=point.longitude))
-            return route_points 
+            return route_points
         
         except Exception as e:
             raise ValueError(f"Failed to parse GPX data: {str(e)}")

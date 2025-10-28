@@ -7,9 +7,11 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 
 let currentRoute = null;
+let currentRouteID = null;
 
 document.getElementById('gpx-upload').addEventListener('change', async function(event) {
     const file = this.files[0];
+    document.getElementById('filename-display').textContent = file.name;
 
     const formData = new FormData();
     formData.append('file', file);
@@ -21,7 +23,7 @@ document.getElementById('gpx-upload').addEventListener('change', async function(
         });
 
         const data = await response.json();
-        
+        currentRouteID = data.route_id;
         
         if (currentRoute){
             map.removeLayer(currentRoute);
@@ -33,6 +35,87 @@ document.getElementById('gpx-upload').addEventListener('change', async function(
 
         map.fitBounds(currentRoute.getBounds());
 
+        await loadPOIs();
+
     } catch (error) {
         console.error('Error uploading GPX file:', error);}
     });
+
+async function loadPOIs() {
+    try {
+        // Load POI map markers
+        const response = await fetch(`http://localhost:5000/pois/markers/${currentRouteID}`);
+        const poi_markers = await response.json();
+        
+        // Add markers to map
+        poi_markers.forEach(marker => {
+            L.marker([marker.lat, marker.lon])
+                .bindPopup(marker.name)
+                .addTo(map);
+        });
+
+        // Load POI table data
+        const tableResponse = await fetch(`http://localhost:5000/pois/table/${currentRouteID}`);
+        const tableData = await tableResponse.json();
+
+        // Update POI table
+        const poiTableBody = document.getElementById('poi-tbody');
+        poiTableBody.innerHTML = ''; 
+
+        tableData.forEach(poi => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${poi.distance}</td>
+                <td>${poi.deviation}</td>
+                <td>${poi.name}</td>
+            `;
+            poiTableBody.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error('Error loading POIs:', error);
+
+    }
+}
+
+const creditsModal = document.getElementById('credits-modal');
+const creditsBtn = document.getElementById('credits-btn');
+const closeModal = document.querySelector('.close-modal');
+
+// Show modal when clicking the credits button
+creditsBtn.addEventListener('click', () => {
+    creditsModal.style.display = 'block';
+});
+
+// Close modal when clicking the X
+closeModal.addEventListener('click', () => {
+    creditsModal.style.display = 'none';
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', (event) => {
+    if (event.target === creditsModal) {
+        creditsModal.style.display = 'none';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const creditsModal = document.getElementById('credits-modal');
+    const creditsBtn = document.getElementById('credits-btn');
+    const closeModal = document.querySelector('.close-modal');
+
+    creditsBtn.addEventListener('click', () => {
+        creditsModal.style.display = 'block';
+    });
+
+    closeModal.addEventListener('click', () => {
+        creditsModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (event) => {
+        if (event.target === creditsModal) {
+            creditsModal.style.display = 'none';
+        }
+    });
+});
+

@@ -16,12 +16,16 @@
 <body>
     <div class="container">
         <header>
-            <h1>MAP AHEAD</h1>
+            <div class="header-content">
+                <h1>MAP AHEAD</h1>
+                <button id="credits-btn" class="credits-button">Credits</button>
+            </div>
         </header>
         
         <div class="controls">
             <input type="file" id="gpx-upload" accept=".gpx">
             <label for="gpx-upload" class="upload-button">Upload GPX</label>
+            <span id="filename-display"></span>
         </div>
         
         <div class="main-content">
@@ -43,6 +47,18 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+    
+    <div id="credits-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Credits</h2>
+            <p>Map Ahead </p>
+            <ul>
+                <li>Map data: © OpenStreetMap contributors</li>
+                <li>Mapping library: Leaflet</li>
+            </ul>
         </div>
     </div>
     

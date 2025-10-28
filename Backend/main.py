@@ -1,8 +1,8 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from mockdata import MOCK_ROUTE_COORDINATES, MOCK_POIS
 from gpx_parser import GPXParser
+from Backend.route_storage import RouteStorage
 
 app = FastAPI()
 app.add_middleware(
@@ -12,6 +12,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+route_storage = RouteStorage()
 
 @app.get("/")
 async def root():
@@ -32,7 +33,43 @@ async def upload_gpx(file: UploadFile = File(...)):
         parser = GPXParser(gpx_data)
         route_points = parser.parse()
 
+        route_id = route_storage.store(route_points)
+
         coordinates = [{"lat": point.lat, "lon": point.lon} for point in route_points]
-        return {"filename": file.filename, "coordinates": coordinates}
+        return {
+            "route_id": route_id,
+            "filename": file.filename, 
+            "coordinates": coordinates
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process GPX file: {str(e)}")
+
+@app.get("/pois/markers/{route_id}")
+async def get_poi_markers(route_id: str):
+    route = route_storage.get(route_id)
+    if not route:
+        raise HTTPException(status_code=404, detail="Route not found.")
+    
+    # Mock data for Frontend development
+    mock_markers = [
+        {"lat": 52.5200, "lon": 13.4050, "name": "Shell Berlin"},
+        {"lat": 52.5100, "lon": 13.4150, "name": "Total Berlin"},
+        {"lat": 52.5300, "lon": 13.3950, "name": "Aral Station"}
+    ]
+    
+    return mock_markers
+        
+
+@app.get("/pois/table/{route_id}")
+async def get_poi_table(route_id: str):
+    route = route_storage.get(route_id)
+    if not route:
+        raise HTTPException(status_code=404, detail="Route not found.")
+    
+    # Mock data for Frontend development
+    mock_table_data = [
+        {"distance": "5.2 km", "deviation": "300m", "name": "Shell Berlin"},
+        {"distance": "12.8 km", "deviation": "150m", "name": "Total Berlin"},
+        {"distance": "25.4 km", "deviation": "450m", "name": "Aral Station"}
+    ]
+    return mock_table_data
