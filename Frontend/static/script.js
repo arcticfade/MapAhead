@@ -17,7 +17,7 @@ document.getElementById('gpx-upload').addEventListener('change', async function(
     formData.append('file', file);
 
     try {
-        const response = await fetch('http://localhost:5000/gpx/upload', {
+        const response = await fetch(`http://localhost:5000/gpx/upload`, {
             method: 'POST',
             body: formData
         });
@@ -43,26 +43,23 @@ document.getElementById('gpx-upload').addEventListener('change', async function(
 
 async function loadPOIs() {
     try {
-        // Load POI map markers
-        const response = await fetch(`http://localhost:5000/pois/markers/${currentRouteID}`);
-        const poi_markers = await response.json();
+        const response = await fetch(`http://localhost:5000/pois/${currentRouteID}`);
+        
+        const data = await response.json();
         
         // Add markers to map
-        poi_markers.forEach(marker => {
+        data.markers.forEach(marker => {
             L.marker([marker.lat, marker.lon])
                 .bindPopup(marker.name)
                 .addTo(map);
         });
 
-        // Load POI table data
-        const tableResponse = await fetch(`http://localhost:5000/pois/table/${currentRouteID}`);
-        const tableData = await tableResponse.json();
 
         // Update POI table
         const poiTableBody = document.getElementById('poi-tbody');
         poiTableBody.innerHTML = ''; 
 
-        tableData.forEach(poi => {
+        data.table.forEach(poi => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${poi.distance}</td>
@@ -74,6 +71,7 @@ async function loadPOIs() {
 
     } catch (error) {
         console.error('Error loading POIs:', error);
+        alert('Failed to load POIs. Please try again.');
 
     }
 }

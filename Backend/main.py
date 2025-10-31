@@ -2,7 +2,8 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from gpx_parser import GPXParser
-from Backend.route_storage import RouteStorage
+from route_storage import RouteStorage
+from overpass_client import OverpassClient
 
 app = FastAPI()
 app.add_middleware(
@@ -17,7 +18,6 @@ route_storage = RouteStorage()
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
-
 
 @app.post("/gpx/upload")
 async def upload_gpx(file: UploadFile = File(...)):
@@ -44,32 +44,40 @@ async def upload_gpx(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process GPX file: {str(e)}")
 
-@app.get("/pois/markers/{route_id}")
-async def get_poi_markers(route_id: str):
-    route = route_storage.get(route_id)
-    if not route:
-        raise HTTPException(status_code=404, detail="Route not found.")
-    
-    # Mock data for Frontend development
-    mock_markers = [
-        {"lat": 52.5200, "lon": 13.4050, "name": "Shell Berlin"},
-        {"lat": 52.5100, "lon": 13.4150, "name": "Total Berlin"},
-        {"lat": 52.5300, "lon": 13.3950, "name": "Aral Station"}
-    ]
-    
-    return mock_markers
-        
+@app.get("/pois/{route_id}")
+async def get_pois(route_id: str, max_distance_km: float = 1.0):
+    """
 
-@app.get("/pois/table/{route_id}")
-async def get_poi_table(route_id: str):
+    """
     route = route_storage.get(route_id)
     if not route:
         raise HTTPException(status_code=404, detail="Route not found.")
     
-    # Mock data for Frontend development
-    mock_table_data = [
-        {"distance": "5.2 km", "deviation": "300m", "name": "Shell Berlin"},
-        {"distance": "12.8 km", "deviation": "150m", "name": "Total Berlin"},
-        {"distance": "25.4 km", "deviation": "450m", "name": "Aral Station"}
-    ]
-    return mock_table_data
+    try:
+        overpass_client = OverpassClient(route)
+        bbox = overpass_client.get_route_bounding_box(buffer_km=max_distance_km)
+        overpass_data = overpass_client.query_gas_station(bbox)
+
+        filtered_pois = overpass_client.filter_pois(overpass_data, max_distance_to_route_km=max_distance_km)
+
+        return{
+            "markers": [
+                {
+                    "lat": poi.lat,
+                    "lon": poi.lon,
+                    "name": poi.name
+                }
+                for poi in filtered_pois
+            ],
+            "table": [
+                {
+                    "distance": f"{poi.distance_on_route:.1f} km",
+                    "deviation": f"{poi.distance_to_route * 1000:.0f}m",
+                    "name": poi.name
+                }
+                for poi in filtered_pois
+            ]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve POIs: {str(e)}")
+

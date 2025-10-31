@@ -1,5 +1,5 @@
 import gpxpy
-from Backend.route_storage import Route, RoutePoint
+from route_storage import Route, RoutePoint
 from typing import List
 
 
