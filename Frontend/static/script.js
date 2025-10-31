@@ -8,6 +8,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let currentRoute = null;
 let currentRouteID = null;
+let currentMarkers = [];
 
 document.getElementById('gpx-upload').addEventListener('change', async function(event) {
     const file = this.files[0];
@@ -49,9 +50,10 @@ async function loadPOIs() {
         
         // Add markers to map
         data.markers.forEach(marker => {
-            L.marker([marker.lat, marker.lon])
+            const newMarker = L.marker([marker.lat, marker.lon])
                 .bindPopup(marker.name)
                 .addTo(map);
+            currentMarkers.push(newMarker);
         });
 
 
@@ -75,27 +77,6 @@ async function loadPOIs() {
 
     }
 }
-
-const creditsModal = document.getElementById('credits-modal');
-const creditsBtn = document.getElementById('credits-btn');
-const closeModal = document.querySelector('.close-modal');
-
-// Show modal when clicking the credits button
-creditsBtn.addEventListener('click', () => {
-    creditsModal.style.display = 'block';
-});
-
-// Close modal when clicking the X
-closeModal.addEventListener('click', () => {
-    creditsModal.style.display = 'none';
-});
-
-// Close modal when clicking outside
-window.addEventListener('click', (event) => {
-    if (event.target === creditsModal) {
-        creditsModal.style.display = 'none';
-    }
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     const creditsModal = document.getElementById('credits-modal');

@@ -43,3 +43,14 @@ def test_calculate_distance_on_route():
 
     distance = route_calculator.calculate_distance_on_route(route, route.points[1])  
     assert round(distance, 2) == 255.65  #https://www.luftlinie.org/Berlin,DEU/Hamburg,DEU
+
+def test_find_nearest_route_point_first():
+    route = Route([
+        RoutePoint(lat=0, lon=0),
+        RoutePoint(lat=1, lon=1),
+        RoutePoint(lat=2, lon=2)],
+    "test_route_3")
+
+    target_point = RoutePoint(lat=-0.1, lon=-0.1)  
+    nearest_index = route_calculator.find_nearest_route_point_index(route, target_point)
+    assert nearest_index == 0

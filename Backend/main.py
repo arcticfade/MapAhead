@@ -5,6 +5,9 @@ from gpx_parser import GPXParser
 from route_storage import RouteStorage
 from overpass_client import OverpassClient
 
+MAX_FILE_SIZE_MB = 2
+MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -27,9 +30,12 @@ async def upload_gpx(file: UploadFile = File(...)):
     """
     if not file.filename.endswith('.gpx'):
         raise HTTPException(status_code=400, detail="Invalid file type. Please upload a GPX file.")
-    
     try:
-        gpx_data = await file.read()
+        gpx_data = await file.read(MAX_FILE_SIZE_BYTES + 1)
+
+        if len(gpx_data) > MAX_FILE_SIZE_BYTES:
+            raise HTTPException(status_code=4, detail=f"File too large. Maximum size: {MAX_FILE_SIZE_MB} MB ")    
+        
         parser = GPXParser(gpx_data)
         route_points = parser.parse()
 
@@ -43,6 +49,7 @@ async def upload_gpx(file: UploadFile = File(...)):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process GPX file: {str(e)}")
+
 
 @app.get("/pois/{route_id}")
 async def get_pois(route_id: str, max_distance_km: float = 1.0):

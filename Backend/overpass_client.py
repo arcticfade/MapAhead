@@ -33,9 +33,14 @@ class OverpassClient:
         >;
         out skel qt;
         """
-        response = requests.post(self.overpass_url, data={"data": overpass_query})
-        data = response.json()
-        return data 
+        try:    
+            response = requests.post(self.overpass_url, data={"data": overpass_query}, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.Timeout:
+            raise TimeoutError("Overpass API request timed out.")
+        except requests.exceptions.RequestException as e:
+            raise ConnectionError(f"Overpass API request failed: {str(e)}")
 
     def filter_pois(self, overpass_poi_data: dict, max_distance_to_route_km: float = 1.0) -> List[Dict]:
         filtered_pois = []
@@ -63,28 +68,3 @@ class OverpassClient:
         filtered_pois.sort(key=lambda poi: poi.distance_on_route)
 
         return filtered_pois
-
-
-if __name__ == "__main__":
-    
-    bbox = {
-    'north': 52.65,
-    'south': 52.33,
-    'east': 13.76,
-    'west': 13.09
-    }
-    
-    o = OverpassClient(None)
-    o.route = Route([
-        RoutePoint(lat=52.52, lon=13.405),  # Berlin
-        RoutePoint(lat=52.5205, lon=13.409),  # Slightly northeast
-        RoutePoint(lat=52.521, lon=13.414)   # Further northeast
-    ], "sample_route")
-
-    result = o.query_gas_station(bbox)
-    filtered = o.filter_pois(result)
-    
-    print(filtered)
-    print(len(result.get("elements", [])))
-    print(len(filtered))
-
