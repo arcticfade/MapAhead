@@ -28,4 +28,3 @@ class RouteStorage:
     def get(self, route_id: str) -> Route:
         with self._lock:
             return self._routes.get(route_id)
-
