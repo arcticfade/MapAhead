@@ -101,9 +101,12 @@ class OverpassClient:
         filtered_pois = []
         for element in overpass_poi_data.get("elements", []):
             poi_point = RoutePoint(lat=element['lat'], lon=element['lon'])
+            # find the nearest point on route relative to the poi
             nearest_point_on_route_index = self.route_calculator.find_nearest_route_point_index(self.route, poi_point)
             nearest_route_point = self.route.points[nearest_point_on_route_index]
+            # calculate direct distance to route
             distance_to_route_km = self.route_calculator.haversine_distance(poi_point, nearest_route_point)
+            # only include poi if within max distance
             if distance_to_route_km <= max_distance_to_route_km:
                 distance_along_route = self.route_calculator.calculate_distance_on_route(self.route, nearest_route_point)
                 name = element.get("tags", {}).get("name")
@@ -115,5 +118,8 @@ class OverpassClient:
                     distance_on_route=distance_along_route
                 )
                 filtered_pois.append(poi)
+        # sort the pois by distance along the route
         filtered_pois.sort(key=lambda poi: poi.distance_on_route)
         return filtered_pois
+    
+    

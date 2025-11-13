@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 @dataclass
 class POI:
+    """Point of Interest (POI) data class"""
     lat: float
     lon: float
     name: str

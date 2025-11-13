@@ -18,15 +18,14 @@ app.add_middleware(
 )
 route_storage = RouteStorage()
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
 @app.post("/gpx/upload")
 async def upload_gpx(file: UploadFile = File(...)):
     """
     Endpoint to upload a GPX file and parse route data.
-    Returns: Parsed route data including coordinates.
+        Args:
+            file (UploadFile): The uploaded GPX file.
+        Returns: 
+            dict: containing route_id, filename and coordinates list. 
     """
     if not file.filename.endswith('.gpx'):
         raise HTTPException(status_code=400, detail="Invalid file type. Please upload a GPX file.")
@@ -34,7 +33,7 @@ async def upload_gpx(file: UploadFile = File(...)):
         gpx_data = await file.read(MAX_FILE_SIZE_BYTES + 1)
 
         if len(gpx_data) > MAX_FILE_SIZE_BYTES:
-            raise HTTPException(status_code=4, detail=f"File too large. Maximum size: {MAX_FILE_SIZE_MB} MB ")    
+            raise HTTPException(status_code=413, detail=f"File too large. Maximum size: {MAX_FILE_SIZE_MB} MB ")    
         
         parser = GPXParser(gpx_data)
         route_points = parser.parse()
@@ -54,7 +53,12 @@ async def upload_gpx(file: UploadFile = File(...)):
 @app.get("/pois/{route_id}")
 async def get_pois(route_id: str, max_distance_km: float = 1.0):
     """
-
+    Endpoint to get point of interests (POI) along a route. 
+        Args:
+            route_id (str): The ID of the route.
+            max_distance_km (float): Maximum distance from the route to consider POIs (in kilometers). Default is 1 km.
+        Returns: 
+            dict: containing markers and list of POI data for table.
     """
     route = route_storage.get(route_id)
     if not route:
