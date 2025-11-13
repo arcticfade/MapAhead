@@ -1,9 +1,6 @@
 from overpass_client import OverpassClient, RoutePoint, Route, POI
 import pytest
 import responses
-import requests
-from unittest.mock import patch, Mock
-
 
 def test_overpass_client_creation():
     o = OverpassClient(Route(points=[RoutePoint(-2,-2), RoutePoint(-1,3), RoutePoint(2,2)], id="test"))
@@ -116,5 +113,3 @@ def test_invalid_json(overpass_client, bbox):
         status = 200)
     with pytest.raises(ValueError):
         overpass_client.query_gas_station(bbox)
-    
-

@@ -1,0 +1,138 @@
+import pytest
+import time
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
+import responses
+
+MOCK_POIS_RESPONSE = {
+    "markers": [
+        {"lat": 54.244, "lon": 10.037, "name": "OIL!"},
+        {"lat": 54.245, "lon": 10.040, "name": "Aral"},
+        {"lat": 54.246, "lon": 10.042, "name": "Shell"},
+        {"lat": 54.247, "lon": 10.044, "name": "Shell"},
+        {"lat": 54.248, "lon": 10.045, "name": "Clean Car"},
+        {"lat": 54.249, "lon": 10.047, "name": "Jet"},
+        {"lat": 54.250, "lon": 10.049, "name": "Shell"},
+        {"lat": 54.251, "lon": 10.050, "name": "H2 Tankstelle"},
+        {"lat": 54.252, "lon": 10.051, "name": "Unnamed Gas Station"},
+        {"lat": 54.253, "lon": 10.052, "name": "Aral"},
+    ],
+    "table": [
+        {"distance": "1.1 km", "deviation": "106m", "name": "OIL!"},
+        {"distance": "3.0 km", "deviation": "812m", "name": "Aral"},
+        {"distance": "4.3 km", "deviation": "88m", "name": "Shell"},
+        {"distance": "5.4 km", "deviation": "304m", "name": "Shell"},
+        {"distance": "6.8 km", "deviation": "51m", "name": "Clean Car"},
+        {"distance": "7.2 km", "deviation": "196m", "name": "Jet"},
+        {"distance": "7.8 km", "deviation": "879m", "name": "Shell"},
+        {"distance": "7.8 km", "deviation": "878m", "name": "H2 Tankstelle"},
+        {"distance": "8.1 km", "deviation": "526m", "name": "Unnamed Gas Station"},
+        {"distance": "8.2 km", "deviation": "654m", "name": "Aral"},
+    ]
+}
+
+@pytest.fixture
+def browser():
+    chrome_options = Options()
+    chrome_options.add_argument("--allow-insecure-localhost")
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("--no-sandbox")
+
+    driver = webdriver.Chrome(options=chrome_options)
+    yield driver
+    driver.quit()
+
+def test_map_existence_and_loading_time(browser):
+    start_time = time.time()
+    browser.get("http://127.0.0.1:4000")
+    wait = WebDriverWait(browser,3)
+
+    map_element = wait.until(
+        EC.presence_of_element_located((By.ID, "map"))
+    )
+    end_time = time.time()
+    total_time = end_time - start_time
+    assert total_time < 3
+    assert map_element.is_displayed()
+
+    license = wait.until(
+        EC.presence_of_element_located((By.CLASS_NAME, "leaflet-attribution-flag"))
+    )
+    assert "OpenStreetMap" in browser.page_source
+
+    zoom_controls = browser.find_elements(By.CLASS_NAME, "leaflet-control-zoom")
+    assert len(zoom_controls) > 0
+
+@responses.activate
+def test_gpx_upload_route_pois_happy_path(browser):  
+    browser.get("http://127.0.0.1:4000")
+
+    wait = WebDriverWait(browser,10)
+
+    # GPX-Upload und display
+    file_input = wait.until(
+        EC.presence_of_element_located((By.ID, "gpx-upload"))
+    )
+    file_path = r"C:\Projekte\Schule\MapAhead\tests\files\test_file_100km.gpx"
+    file_input.send_keys(file_path)
+
+    upload_start = time.time()
+    route_line = wait.until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, ".leaflet-pane svg path"))
+    )
+    upload_time = time.time() - upload_start
+
+    assert upload_time < 2, f"Upload dauerte {upload_time:.2f}s"
+    assert route_line is not None
+
+    filename_display = wait.until(
+        EC.presence_of_element_located((By.ID, "filename-display"))
+    )
+    assert "test_file_100km.gpx" in filename_display.text
+
+    time.sleep(0.2)
+
+    # POI-Load
+    poi_load_start = time.time()
+
+    route_id = browser.execute_script("return currentRouteID;")
+    assert route_id is not None
+    responses.add(
+        responses.GET,
+        f"http://127.0.0.1:5000/pois/{route_id}",
+        json=MOCK_POIS_RESPONSE,
+        status=200
+    )
+    
+    poi_time = time.time() - poi_load_start
+    wait.until(
+        lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#poi-tbody tr")) >= 10,
+    )
+    
+    assert poi_time < 2, f"POI-Laden dauerte {poi_time:.2f}s"
+
+    table_rows = browser.find_elements(By.CSS_SELECTOR, "#poi-tbody tr")
+    assert len(table_rows) >= 10
+
+
+def test_credits_btn(browser):
+    browser.get("http://127.0.0.1:4000")
+    wait = WebDriverWait(browser,10)
+
+    credits_btn = wait.until(
+        EC.element_to_be_clickable((By.ID,"credits-btn"))
+    )
+
+
+    credits_start = time.time()
+    credits_btn.click()
+    credits_modal = wait.until(
+        EC.visibility_of_element_located((By.ID,"credits-modal"))
+    )
+    open_time = time.time() - credits_start
+
+    assert open_time < 2
+    assert credits_modal.is_displayed()
