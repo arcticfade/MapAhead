@@ -7,3 +7,12 @@ fastapi dev main.py --port 5000
 
 Frontend: 
 python -m http.server 4000
+
+## Requirements 
+pip install gpxpy
+pip install fastapi
+pip install harversine
+
+for testing: 
+pip install selenium
+pip install pytest

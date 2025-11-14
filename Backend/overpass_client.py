@@ -1,5 +1,5 @@
 import requests 
-from typing import List, Dict
+from typing import List 
 from route_storage import RoutePoint, Route
 from route_calculator import RouteCalculator    
 from poi import POI
@@ -40,7 +40,8 @@ class OverpassClient:
         max_lat = max(point.lat for point in self.route.points)
         min_lon = min(point.lon for point in self.route.points)
         max_lon = max(point.lon for point in self.route.points)
-        buffer_deg = buffer_km / 111.0 # Approximate conversion from km to degrees
+        conversion_factor = 111.0  # Approximate conversion from km to degrees
+        buffer_deg = buffer_km / conversion_factor
         return {
             "south": min_lat - buffer_deg,
             "north": max_lat + buffer_deg,
