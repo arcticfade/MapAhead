@@ -69,7 +69,6 @@ def test_map_existence_and_loading_time(browser):
 @responses.activate
 def test_gpx_upload_route_pois_happy_path(browser):  
     browser.get("http://127.0.0.1:4000")
-
     wait = WebDriverWait(browser,10)
 
     # GPX-Upload und display
@@ -78,26 +77,21 @@ def test_gpx_upload_route_pois_happy_path(browser):
     )
     file_path = r"C:\Projekte\Schule\MapAhead\tests\files\test_file_100km.gpx"
     file_input.send_keys(file_path)
-
     upload_start = time.time()
     route_line = wait.until(
         EC.presence_of_element_located((By.CSS_SELECTOR, ".leaflet-pane svg path"))
     )
     upload_time = time.time() - upload_start
-
     assert upload_time < 2, f"Upload dauerte {upload_time:.2f}s"
     assert route_line is not None
-
     filename_display = wait.until(
         EC.presence_of_element_located((By.ID, "filename-display"))
     )
     assert "test_file_100km.gpx" in filename_display.text
-
     time.sleep(0.2)
 
     # POI-Load
     poi_load_start = time.time()
-
     route_id = browser.execute_script("return currentRouteID;")
     assert route_id is not None
     responses.add(
@@ -111,9 +105,7 @@ def test_gpx_upload_route_pois_happy_path(browser):
     wait.until(
         lambda driver: len(driver.find_elements(By.CSS_SELECTOR, "#poi-tbody tr")) >= 10,
     )
-    
-    assert poi_time < 2, f"POI-Laden dauerte {poi_time:.2f}s"
-
+    assert poi_time < 2
     table_rows = browser.find_elements(By.CSS_SELECTOR, "#poi-tbody tr")
     assert len(table_rows) >= 10
 

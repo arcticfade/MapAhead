@@ -5,7 +5,7 @@ from gpx_parser import GPXParser
 from route_storage import RouteStorage
 from overpass_client import OverpassClient
 
-MAX_FILE_SIZE_MB = 2
+MAX_FILE_SIZE_MB = 0.5
 MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
 app = FastAPI()
@@ -30,7 +30,7 @@ async def upload_gpx(file: UploadFile = File(...)):
     if not file.filename.endswith('.gpx'):
         raise HTTPException(status_code=400, detail="Invalid file type. Please upload a GPX file.")
     try:
-        gpx_data = await file.read(MAX_FILE_SIZE_BYTES + 1)
+        gpx_data = await file.read(MAX_FILE_SIZE_BYTES)
 
         if len(gpx_data) > MAX_FILE_SIZE_BYTES:
             raise HTTPException(status_code=413, detail=f"File too large. Maximum size: {MAX_FILE_SIZE_MB} MB ")    
