@@ -25,14 +25,9 @@ class RouteCalculator:
         Returns:
             int: Index of the nearest route point-
         """
-        nearest_index = -1
-        min_distance = float('inf')
-        for index, route_point in enumerate(route.points):
-            distance = self.haversine_distance(route_point, poi_point)
-            if distance < min_distance:
-                min_distance = distance
-                nearest_index = index
-        return nearest_index
+        #nearest_index = route.rtree.nearest((poi_point.lon, poi_point.lat, poi_point.lon, poi_point.lat), nearest_index = 1)
+        nearest_index = route.rtree.nearest((poi_point.lon, poi_point.lat, poi_point.lon, poi_point.lat), objects=False)
+        return next(nearest_index)
     
     def calculate_distance_on_route(self, route: Route, point: RoutePoint) -> float:
         """

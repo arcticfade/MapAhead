@@ -1,3 +1,4 @@
+from rtree import index
 from dataclasses import dataclass
 import uuid
 from typing import List, Dict
@@ -8,10 +9,15 @@ class RoutePoint:
     lat: float
     lon: float
 
-@dataclass
 class Route:
     points: List[RoutePoint]
     id: str
+    rtree: index.Index
+    def __init__(self, points: List[RoutePoint], id: str, rtree: index.Index):
+        self.points = points
+        self.id = id
+        self.rtree = rtree
+
 
 class RouteStorage:
     def __init__(self):
@@ -20,8 +26,13 @@ class RouteStorage:
 
     def store(self, points: List[RoutePoint]) -> str:
         route_id = str(uuid.uuid4())
+
+        idx = index.Index()
+        for i, point in enumerate(points):
+            idx.insert(i,(point.lon,point.lat,point.lon,point.lat))
+        
         with self._lock:
-            self._routes[route_id] = Route(points=points, id=route_id)
+            self._routes[route_id] = Route(points=points, id=route_id, rtree = idx)
         print (f"Stored route with ID: {route_id}, Number of points: {len(points)}")
         return route_id
     
