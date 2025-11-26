@@ -6,7 +6,7 @@ from route_storage import RouteStorage
 from overpass_client import OverpassClient
 
 MAX_FILE_SIZE_MB = 0.5
-MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+MAX_FILE_SIZE_BYTES = int(MAX_FILE_SIZE_MB * 1024 * 1024)
 
 app = FastAPI()
 app.add_middleware(
