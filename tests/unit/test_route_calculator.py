@@ -1,5 +1,5 @@
 from route_calculator import RouteCalculator
-from route_storage import RoutePoint, Route
+from route_storage import RoutePoint, RouteStorage
 
 route_calculator = RouteCalculator()
 
@@ -23,34 +23,37 @@ def test_haversine_distance_same_point():
 
 
 def test_find_nearest_route_point():
-    route = Route([
+    route_storage = RouteStorage()
+    route_id = route_storage.store([
         RoutePoint(lat=0, lon=0),  
         RoutePoint(lat=1, lon=1), 
         RoutePoint(lat=2, lon=2),
-        RoutePoint(lat=3, lon=3)],
-    "test_route")
+        RoutePoint(lat=3, lon=3)])
+    route = route_storage.get(route_id)
 
     target_point = RoutePoint(lat=1.1, lon=1.1)  
-    nearest_index = route_calculator.find_nearest_route_point_index(route, target_point)
+    nearest_index = route_calculator.find_nearest_route_point_index(route, target_point) # type: ignore
     assert nearest_index == 1  
 
 def test_calculate_distance_on_route():
-    route = Route([
+    route_storage = RouteStorage()
+    route_id = route_storage.store([
         RoutePoint(lat=52.523403, lon=13.4114),  # Berlin
         RoutePoint(lat=53.553406, lon=9.992196),  # Hamburg
         RoutePoint(lat=52.37052, lon=9.73322)   # Hannover
-    ],"test_route_2")
+    ])
+    route = route_storage.get(route_id)
 
-    distance = route_calculator.calculate_distance_on_route(route, route.points[1])  
+    distance = route_calculator.calculate_distance_on_route(route, route.points[1])  # type: ignore
     assert round(distance, 2) == 255.65  #https://www.luftlinie.org/Berlin,DEU/Hamburg,DEU
 
 def test_find_nearest_route_point_first():
-    route = Route([
+    route_storage = RouteStorage()
+    route_id = route_storage.store([
         RoutePoint(lat=0, lon=0),
         RoutePoint(lat=1, lon=1),
-        RoutePoint(lat=2, lon=2)],
-    "test_route_3")
-
+        RoutePoint(lat=2, lon=2)])
+    route = route_storage.get(route_id)
     target_point = RoutePoint(lat=-0.1, lon=-0.1)  
-    nearest_index = route_calculator.find_nearest_route_point_index(route, target_point)
+    nearest_index = route_calculator.find_nearest_route_point_index(route, target_point) # type: ignore
     assert nearest_index == 0

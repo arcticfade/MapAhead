@@ -5,7 +5,7 @@ from gpx_parser import GPXParser
 from route_storage import RouteStorage
 from overpass_client import OverpassClient
 
-MAX_FILE_SIZE_MB = 0.5
+MAX_FILE_SIZE_MB = 2
 MAX_FILE_SIZE_BYTES = int(MAX_FILE_SIZE_MB * 1024 * 1024)
 
 app = FastAPI()
@@ -27,7 +27,7 @@ async def upload_gpx(file: UploadFile = File(...)):
         Returns: 
             dict: containing route_id, filename and coordinates list. 
     """
-    if not file.filename.endswith('.gpx'):
+    if not file.filename.endswith('.gpx'): # type: ignore
         raise HTTPException(status_code=400, detail="Invalid file type. Please upload a GPX file.")
     try:
         gpx_data = await file.read(MAX_FILE_SIZE_BYTES)
@@ -60,6 +60,7 @@ async def get_pois(route_id: str, max_distance_km: float = 1.0):
         Returns: 
             dict: containing markers and list of POI data for table.
     """
+    
     route = route_storage.get(route_id)
     if not route:
         raise HTTPException(status_code=404, detail="Route not found.")

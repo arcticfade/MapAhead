@@ -128,3 +128,5 @@ def test_credits_btn(browser):
 
     assert open_time < 2
     assert credits_modal.is_displayed()
+
+    

@@ -21,12 +21,11 @@ class RouteCalculator:
         Find the nearest point on the route to the poi point.
         Args:
             route (Route): Route object containing route points.
-            poi_point (RoutePoint): 
+            poi_point (RoutePoint): The target point.
         Returns:
-            int: Index of the nearest route point-
+            int: Index of the nearest route point
         """
-        #nearest_index = route.rtree.nearest((poi_point.lon, poi_point.lat, poi_point.lon, poi_point.lat), nearest_index = 1)
-        nearest_index = route.rtree.nearest((poi_point.lon, poi_point.lat, poi_point.lon, poi_point.lat), objects=False)
+        nearest_index = route.rtree.nearest((poi_point.lon, poi_point.lat, poi_point.lon, poi_point.lat), 1)
         return next(nearest_index)
     
     def calculate_distance_on_route(self, route: Route, point: RoutePoint) -> float:

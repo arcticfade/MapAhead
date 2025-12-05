@@ -1,7 +1,7 @@
 from rtree import index
 from dataclasses import dataclass
 import uuid
-from typing import List, Dict
+from typing import List, Dict, Optional
 from threading import Lock
 
 @dataclass
@@ -36,6 +36,6 @@ class RouteStorage:
         print (f"Stored route with ID: {route_id}, Number of points: {len(points)}")
         return route_id
     
-    def get(self, route_id: str) -> Route:
+    def get(self, route_id: str) -> Optional[Route]:
         with self._lock:
             return self._routes.get(route_id)

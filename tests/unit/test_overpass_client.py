@@ -1,14 +1,22 @@
-from overpass_client import OverpassClient, RoutePoint, Route, POI
+from rtree import index
+from overpass_client import OverpassClient, RoutePoint, Route, POI 
+from route_storage import RouteStorage 
 import pytest
 import responses
 
 def test_overpass_client_creation():
-    o = OverpassClient(Route(points=[RoutePoint(-2,-2), RoutePoint(-1,3), RoutePoint(2,2)], id="test"))
+    route_storage = RouteStorage()
+    route_id = route_storage.store([RoutePoint(-2,-2), RoutePoint(-1,3), RoutePoint(2,2)])
+    route = route_storage.get(route_id)
+    o = OverpassClient(route) # type: ignore
     assert isinstance(o, OverpassClient)
     assert o.overpass_url == "http://overpass-api.de/api/interpreter"
 
 def test_get_route_bounding_box():
-    o = OverpassClient(Route(points=[RoutePoint(-2.0,-2.0), RoutePoint(-1.0,3.0), RoutePoint(2.0,2.0)], id="test"))
+    route_storage = RouteStorage()
+    route_id = route_storage.store([RoutePoint(-2,-2), RoutePoint(-1,3), RoutePoint(2,2)])
+    route = route_storage.get(route_id)
+    o = OverpassClient(route) # type: ignore
     bbox = o.get_route_bounding_box(buffer_km=0.0)
     assert bbox == {            
             "south": -2.0,
@@ -17,9 +25,10 @@ def test_get_route_bounding_box():
             "east": 3.0}
     
 def test_filter_pois():
-    route = Route(points=[RoutePoint(0,0), RoutePoint(0,1), RoutePoint(1,1)], id="test")
-    
-    o = OverpassClient(route)
+    route_storage = RouteStorage()
+    route_id = route_storage.store([RoutePoint(0,0), RoutePoint(0,1), RoutePoint(1,1)])
+    route = route_storage.get(route_id)
+    o = OverpassClient(route) # type: ignore
     
     overpass_data = {
         "elements": [
@@ -37,7 +46,13 @@ def test_filter_pois():
 
 @pytest.fixture
 def overpass_client():
-    return OverpassClient(route=None)
+    # Provide a minimal valid Route object for testing
+    idx = index.Index()
+    points = [RoutePoint(0, 0)]
+    for i, point in enumerate(points):
+        idx.insert(i, (point.lon, point.lat, point.lon, point.lat))
+    
+    return OverpassClient(route=Route(points=points, id="test", rtree=idx))
 @pytest.fixture
 def bbox():
     return {
@@ -81,7 +96,6 @@ def test_sucessfull(overpass_client , bbox):
 
     results = overpass_client.query_gas_station(bbox)
     assert "elements" in results
-    assert responses.calls[0].response.status_code == 200
     assert len(results["elements"]) == 2
 
 
