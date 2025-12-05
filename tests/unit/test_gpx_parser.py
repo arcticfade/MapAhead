@@ -4,6 +4,15 @@ import time
 
 
 def test_gpx_parser():
+    """
+    Test Backend Requirement 4: POI data delivery within 2 seconds.
+    
+    Verifies JSON response contains:
+    - Route kilometers (distance)
+    - Distance to route (deviation)
+    - POI name
+    - Coordinates (lat/lon)
+    """
     with open(r'C:\Projekte\Schule\MapAhead\tests\files\test_file_2MB.gpx','rb') as file:
         gpx_byte = file.read()
     start_time = time.time()

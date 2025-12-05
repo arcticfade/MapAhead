@@ -6,7 +6,14 @@ from fastapi.testclient import TestClient
 from main import app 
 
 def test_performance():
-    """ Test the performance of OverpassClient """
+    """
+    Test Overpass Requirements 1, 2, 3:
+    - Requirement 1: BBox calculation < 1 second
+    - Requirement 2: Overpass API query < 5 seconds
+    - Requirement 3: POI filtering < 3 seconds
+    
+    Tests 100km route. Note: Depends on Overpass API availability.
+    """
     with open(r'C:\Projekte\Schule\MapAhead\tests\files\test_file_100km.gpx','rb') as file:
         gpx_byte = file.read()
     
@@ -42,8 +49,13 @@ client = TestClient(app)
 
 def test_poi_data_response_time():
     """
-    Test Anforderung 4: Daten für Ergebnistabelle innerhalb von 2 Sekunden bereitstellen
-    JSON sollte enthalten: Routenkilometer, Distanz zur Route, Bezeichnung, Breitengrad, Längengrad
+    Test Backend Requirement 4: POI data delivery within 2 seconds.
+    
+    Verifies JSON response contains:
+    - Route kilometers (distance)
+    - Distance to route (deviation)
+    - POI name
+    - Coordinates (lat/lon)
     """
     with open(r'C:\Projekte\Schule\MapAhead\tests\files\test_file_100km.gpx','rb') as file:
         gpx_byte = file.read()

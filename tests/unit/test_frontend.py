@@ -46,6 +46,15 @@ def browser():
     driver.quit()
 
 def test_map_existence_and_loading_time(browser):
+    """
+    Test Frontend Requirement 1: Map must load within 3 seconds.
+    
+    Verifies:
+    - Map element exists and is visible
+    - OSM attribution is present
+    - Leaflet controls are loaded
+    - Total loading time < 3 seconds
+    """
     start_time = time.time()
     browser.get("http://127.0.0.1:4000")
     wait = WebDriverWait(browser,3)
@@ -67,7 +76,14 @@ def test_map_existence_and_loading_time(browser):
     assert len(zoom_controls) > 0
 
 @responses.activate
-def test_gpx_upload_route_pois_happy_path(browser):  
+def test_gpx_upload_route_pois_happy_path(browser):
+    """
+    Test Frontend Requirements 3 & 4:
+    - Requirement 3: Display 200 route coordinates within 2 seconds
+    - Requirement 4: Load and display 10 POIs within 2 seconds
+    
+    Tests complete user workflow from GPX upload to POI visualization.
+    """
     browser.get("http://127.0.0.1:4000")
     wait = WebDriverWait(browser,10)
 
@@ -111,6 +127,11 @@ def test_gpx_upload_route_pois_happy_path(browser):
 
 
 def test_credits_btn(browser):
+    """
+    Test Frontend Requirement 5: Credits modal must open within 2 seconds.
+    
+    Verifies modal opens and displays properly when credits button is clicked.
+    """    
     browser.get("http://127.0.0.1:4000")
     wait = WebDriverWait(browser,10)
 

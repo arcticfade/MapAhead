@@ -13,8 +13,8 @@ def test_multiple_route_storage():
     route1 = storage.get(route_id1)
     route2 = storage.get(route_id2)
     
-    assert route1.points[0].lat == 10.0
-    assert route2.points[0].lat == 15.0
+    assert route1.points[0].lat == 10.0 # type: ignore
+    assert route2.points[0].lat == 15.0 # type: ignore
 
 def test_store():
     storage = RouteStorage()

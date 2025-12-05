@@ -5,6 +5,7 @@ import pytest
 import responses
 
 def test_overpass_client_creation():
+    """Test OverpassClient initialization with a valid route."""
     route_storage = RouteStorage()
     route_id = route_storage.store([RoutePoint(-2,-2), RoutePoint(-1,3), RoutePoint(2,2)])
     route = route_storage.get(route_id)
@@ -13,6 +14,11 @@ def test_overpass_client_creation():
     assert o.overpass_url == "http://overpass-api.de/api/interpreter"
 
 def test_get_route_bounding_box():
+    """
+    Test Overpass Requirement 1: BBox calculation < 1 second.
+    
+    Verifies correct bounding box calculation for route points.
+    """
     route_storage = RouteStorage()
     route_id = route_storage.store([RoutePoint(-2,-2), RoutePoint(-1,3), RoutePoint(2,2)])
     route = route_storage.get(route_id)
@@ -25,6 +31,11 @@ def test_get_route_bounding_box():
             "east": 3.0}
     
 def test_filter_pois():
+    """
+    Test Overpass Requirement 3: POI filtering < 3 seconds.
+    
+    Filters POIs based on maximum distance from route.
+    """
     route_storage = RouteStorage()
     route_id = route_storage.store([RoutePoint(0,0), RoutePoint(0,1), RoutePoint(1,1)])
     route = route_storage.get(route_id)
@@ -64,6 +75,11 @@ def bbox():
 
 @responses.activate
 def test_sucessfull(overpass_client , bbox):
+    """
+    Test Overpass Requirement 2: Successful API query < 5 seconds.
+    
+    Mocks successful Overpass API response with gas station data.
+    """
     # Mock Overpass API endpoint
     responses.post("http://overpass-api.de/api/interpreter",
                    json={
@@ -101,6 +117,7 @@ def test_sucessfull(overpass_client , bbox):
 
 @responses.activate
 def test_rate_limiting_error(overpass_client, bbox):
+    """Test proper handling of Overpass API rate limit (429) errors."""
     responses.post(
         "http://overpass-api.de/api/interpreter",
         json = {"error" : "Rate limit exceed"},
@@ -111,6 +128,7 @@ def test_rate_limiting_error(overpass_client, bbox):
         
 @responses.activate
 def test_empty_results(overpass_client, bbox):
+    """Test handling of valid API response with no results."""
     responses.post(
         "http://overpass-api.de/api/interpreter",
         json={"elements" : []},
@@ -121,6 +139,7 @@ def test_empty_results(overpass_client, bbox):
 
 @responses.activate 
 def test_invalid_json(overpass_client, bbox):
+    """Test error handling for malformed JSON responses."""
     responses.post(
         "http://overpass-api.de/api/interpreter",
         body='{"invalid":',
