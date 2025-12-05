@@ -33,7 +33,8 @@ A web application for finding points of interest (POIs) along GPX routes. Upload
 3. **Start the backend** (in `Backend/` folder)
    ```bash
    cd Backend
-   fastapi dev main.py --port 5000   ```
+   fastapi dev main.py --port 5000   
+   ```
 
 4. **Start the frontend** (in `Frontend/` folder)
    ```bash
@@ -78,7 +79,7 @@ MapAhead/
 - FastAPI - REST API framework
 - rtree - Spatial indexing (R-tree)
 - haversine - Geodesic distance calculations
-- xml.etree.ElementTree - GPX parsing
+- gpxpy - GPX parsing
 
 **Frontend:**
 - Leaflet.js - Interactive maps
