@@ -21,7 +21,7 @@ A web application for finding points of interest (POIs) along GPX routes. Upload
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/MapAhead.git
+   git clone https://github.com/arcticfade/MapAhead.git
    cd MapAhead
    ```
 
@@ -177,7 +177,7 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 Author
 
-[Your Name](https://github.com/YOUR_USERNAME)
+[arcticfade](https://github.com/arcticfade)
 
 ## 🙏 Acknowledgments
 
