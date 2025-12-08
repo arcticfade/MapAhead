@@ -1,6 +1,7 @@
 from Backend.route_storage import RouteStorage, Route, RoutePoint
 
 def test_multiple_route_storage():
+    """ Test storing multiple routes and retrieving them correctly."""
     storage = RouteStorage()
     points1 = [RoutePoint(lat=10.0, lon=20.0)]
     points2 = [RoutePoint(lat=15.0, lon=25.0)]
@@ -17,6 +18,7 @@ def test_multiple_route_storage():
     assert route2.points[0].lat == 15.0 # type: ignore
 
 def test_store():
+    """ Test storing a route and verifying its contents."""
     storage = RouteStorage()
     points = [RoutePoint(lat=42, lon=-42) for _ in range(100)]
 
@@ -30,6 +32,7 @@ def test_store():
     assert isinstance(storage._routes[route_id], Route)
 
 def test_get():
+    """ Test retrieving a stored route by its ID."""
     storage = RouteStorage()
     points = [RoutePoint(lat=1, lon=1), RoutePoint(lat=2, lon=2)]
     route_id = storage.store(points)

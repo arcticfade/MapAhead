@@ -1,6 +1,7 @@
 from fastapi.testclient import TestClient
 import time
 from main import app 
+import os
 
 client = TestClient(app)
 
@@ -11,7 +12,9 @@ def test_gpx_upload_performance():
     Note: For 2MB files with 20,000+ points, extended to 10 seconds
     as 2 seconds proved unrealistic for large files.
     """
-    with open(r'C:\Projekte\Schule\MapAhead\tests\files\test_file_2MB.gpx','rb') as file:
+    test_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    file_path = os.path.join(test_dir, 'tests', 'files', 'test_file_2MB.gpx')
+    with open(file_path,'rb') as file:
         gpx_byte = file.read()
     start_time = time.time()
     response = client.post(

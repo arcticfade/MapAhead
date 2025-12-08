@@ -57,7 +57,7 @@ def test_filter_pois():
 
 @pytest.fixture
 def overpass_client():
-    # Provide a minimal valid Route object for testing
+    """ Provide a minimal valid Route object for testing """
     idx = index.Index()
     points = [RoutePoint(0, 0)]
     for i, point in enumerate(points):
@@ -80,7 +80,6 @@ def test_sucessfull(overpass_client , bbox):
     
     Mocks successful Overpass API response with gas station data.
     """
-    # Mock Overpass API endpoint
     responses.post("http://overpass-api.de/api/interpreter",
                    json={
                        "elements" : [

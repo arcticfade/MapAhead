@@ -4,6 +4,7 @@ from route_storage import RouteStorage
 import time
 from fastapi.testclient import TestClient
 from main import app 
+import os
 
 def test_performance():
     """
@@ -14,7 +15,9 @@ def test_performance():
     
     Tests 100km route. Note: Depends on Overpass API availability.
     """
-    with open(r'C:\Projekte\Schule\MapAhead\tests\files\test_file_100km.gpx','rb') as file:
+    test_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    file_path = os.path.join(test_dir, 'tests', 'files', 'test_file_100km.gpx')
+    with open(file_path,'rb') as file:
         gpx_byte = file.read()
     
     gpx_parser = GPXParser(gpx_byte)
@@ -57,7 +60,9 @@ def test_poi_data_response_time():
     - POI name
     - Coordinates (lat/lon)
     """
-    with open(r'C:\Projekte\Schule\MapAhead\tests\files\test_file_100km.gpx','rb') as file:
+    test_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    file_path = os.path.join(test_dir, 'tests', 'files', 'test_file_100km.gpx')
+    with open(file_path,'rb') as file:
         gpx_byte = file.read()
     
     upload_response = client.post(

@@ -1,19 +1,17 @@
 from gpx_parser import GPXParser
-from route_storage import RouteStorage
 import time
+import os
 
 
 def test_gpx_parser():
     """
-    Test Backend Requirement 4: POI data delivery within 2 seconds.
+    Test Backend Requirement 1: GPX parsing within 2 seconds.
     
-    Verifies JSON response contains:
-    - Route kilometers (distance)
-    - Distance to route (deviation)
-    - POI name
-    - Coordinates (lat/lon)
+    Parses a 2MB GPX file with 20,000+ points.
     """
-    with open(r'C:\Projekte\Schule\MapAhead\tests\files\test_file_2MB.gpx','rb') as file:
+    test_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    file_path = os.path.join(test_dir, 'tests', 'files', 'test_file_2MB.gpx')
+    with open(file_path,'rb') as file:
         gpx_byte = file.read()
     start_time = time.time()
     gpx_parser = GPXParser(gpx_byte)
