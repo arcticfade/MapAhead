@@ -25,24 +25,42 @@ A web application for finding points of interest (POIs) along GPX routes. Upload
    cd MapAhead
    ```
 
-2. **Install dependencies**
+2. **install or activate venv enviroment**
+   - If you haven't use venv before
+   ```bash
+   sudo apt update && sudo apt install python3-venv
+   ```
+   - Create environment
+   ```bash
+   python3 -m venv .venv
+   ```
+   - Activate it:
+     - Linux/IOS
+      ```bash
+      source .venv/bin/activate      
+      ```
+      - Windows
+     ```bash
+      ... .venv\scripts\activate  
+      ```
+4. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Start the backend** (in `Backend/` folder)
+5. **Start the backend** (in `Backend/` folder)
    ```bash
    cd Backend
    fastapi dev main.py --port 5000   
    ```
 
-4. **Start the frontend** (in `Frontend/` folder)
+6. **Start the frontend** (in `Frontend/` folder)
    ```bash
    cd Frontend
    python -m http.server 4000
    ```
 
-5. **Open in browser**
+7. **Open in browser**
    ```
    http://localhost:4000
    ```
