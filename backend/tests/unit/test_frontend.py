@@ -7,6 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 import responses
 
+pytestmark = pytest.mark.e2e  # needs Chrome + running servers; run with: pytest -m e2e
+
 MOCK_POIS_RESPONSE = {
     "markers": [
         {"lat": 54.244, "lon": 10.037, "name": "OIL!"},

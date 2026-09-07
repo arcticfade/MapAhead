@@ -1,10 +1,13 @@
-from overpass_client import OverpassClient
-from gpx_parser import GPXParser
-from route_storage import RouteStorage
+from mapahead.overpass_client import OverpassClient
+from mapahead.gpx_parser import GPXParser
+from mapahead.route_storage import RouteStorage
 import time
 from fastapi.testclient import TestClient
-from main import app 
+from mapahead.main import app 
 import os
+import pytest
+
+pytestmark = pytest.mark.live  # hits the real Overpass API; run with: pytest -m live
 
 def test_performance():
     """

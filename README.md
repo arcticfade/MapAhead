@@ -1,204 +1,75 @@
 # 🗺️ MapAhead
 
-A web application for finding points of interest (POIs) along GPX routes. Upload your GPX file, visualize your route on an interactive map, and discover gas stations along the way.
+Supply planning for ultracycling events. Upload a GPX route, see it on a map, and find points of interest (fuel, water, food, sleep, ...) along it, sorted by route kilometre with their deviation from the route.
 
-## ✨ Features
+Started as a school project (gas stations only, vanilla JS). Now being rebuilt step by step: Python/FastAPI backend, Angular frontend, more POI categories, saved event plans, Docker deployment. The plan and the reasoning live in [docs/](docs/); start with [docs/00-vision.md](docs/00-vision.md) and [docs/03-roadmap.md](docs/03-roadmap.md).
 
-- 📁 **GPX Upload** - Import GPX files up to 2MB
-- 🗺️ **Interactive Map** - Route visualization using Leaflet.js and OpenStreetMap
-- ⛽ **POI Discovery** - Automatic gas station detection along your route via Overpass API
-- ⚡ **High Performance** - R-tree spatial indexing for sub-second POI filtering
-- 📊 **Route Analytics** - Distance calculations and deviation metrics
+## Status
 
-## 🚀 Quick Start
+- ✅ Phase 0: docs, `CLAUDE.md`, backend as an installable package
+- ⏳ Phase 1: backend refactor and bug fixes
+- ⏳ Phase 2: Angular frontend (the current `Frontend/` folder is the old vanilla JS app and will be replaced)
 
-### Prerequisites
+## Quick start
 
-- Python 3.8+
-- Modern web browser
+### Backend
 
-### Installation
+Requires Python 3.12+.
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/arcticfade/MapAhead.git
-   cd MapAhead
-   ```
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+fastapi dev mapahead/main.py --port 5000
+```
 
-2. **install or activate venv enviroment**
-   - If you haven't use venv before
-   ```bash
-   sudo apt update && sudo apt install python3-venv
-   ```
-   - Create environment
-   ```bash
-   python3 -m venv .venv
-   ```
-   - Activate it:
-     - Linux/IOS
-      ```bash
-      source .venv/bin/activate      
-      ```
-      - Windows
-     ```bash
-      ... .venv\scripts\activate  
-      ```
-4. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+Interactive API docs: http://localhost:5000/docs
 
-5. **Start the backend** (in `Backend/` folder)
-   ```bash
-   cd Backend
-   fastapi dev main.py --port 5000   
-   ```
+### Frontend (old vanilla JS app, until Phase 2 lands)
 
-6. **Start the frontend** (in `Frontend/` folder)
-   ```bash
-   cd Frontend
-   python -m http.server 4000
-   ```
+```bash
+cd Frontend
+python3 -m http.server 4000
+```
 
-7. **Open in browser**
-   ```
-   http://localhost:4000
-   ```
+Open http://localhost:4000.
 
-## 📁 Project Structure
+## Tests
+
+```bash
+cd backend
+pytest              # offline tests (default)
+pytest -m live      # tests that hit the real Overpass API
+pytest -m e2e       # Selenium browser tests; needs Chrome and both servers running
+```
+
+## Project structure
 
 ```
 MapAhead/
-├── Backend/
-│   ├── main.py                 # FastAPI application
-│   ├── gpx_parser.py           # GPX file parsing
-│   ├── route_storage.py        # Route storage with R-tree indexing
-│   ├── route_calculator.py     # Distance calculations
-│   ├── overpass_client.py      # Overpass API integration
-│   └── poi.py                  # POI data model
-├── Frontend/
-│   ├── index.html              # Main HTML page
-│   └── static/
-│       ├── script.js           # Frontend logic
-│       └── style.css           # Styling
-└── tests/
-    ├── unit/                   # Unit tests
-    └── integration/            # Integration & performance tests
+├── CLAUDE.md               entry point for AI-assisted work, links to docs/
+├── docs/                   vision, architecture, conventions, roadmap, ADRs, concept notes
+├── backend/
+│   ├── pyproject.toml      package metadata, dependencies, pytest config
+│   ├── mapahead/           the Python package (FastAPI app, GPX parsing, routing, Overpass client)
+│   └── tests/              unit and integration tests, GPX fixtures
+└── Frontend/               old vanilla JS app (replaced by Angular in Phase 2)
 ```
 
-## 🏗️ Architecture
+Architecture, layers and data flow: [docs/01-architecture.md](docs/01-architecture.md).
 
-### Class Diagram
-![Class Diagram](./class_diagram.png)
+## API (current)
 
-### Technology Stack
+- `POST /gpx/upload` multipart GPX file (max 2 MB) → `{ route_id, filename, coordinates[] }`
+- `GET /pois/{route_id}?max_distance_km=1.0` → `{ markers[], table[] }`
 
-**Backend:**
-- FastAPI - REST API framework
-- rtree - Spatial indexing (R-tree)
-- haversine - Geodesic distance calculations
-- gpxpy - GPX parsing
+Full schema at `/openapi.json` when the backend runs. Response shapes change in Phase 1.1 (numbers instead of formatted strings).
 
-**Frontend:**
-- Leaflet.js - Interactive maps
-- OpenStreetMap - Map tiles
-- Vanilla JavaScript - No framework dependencies
+## Tech
 
-**Testing:**
-- pytest - Testing framework
-- responses - HTTP mocking
-- FastAPI TestClient - API testing
+Backend: FastAPI, gpxpy, rtree, haversine, requests. Tests: pytest, responses, FastAPI TestClient. Map data: © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright) (ODbL), queried via the Overpass API. Map rendering: Leaflet.
 
-## 🧪 Testing
+## License
 
-Run all tests:
-```bash
-pytest
-```
-
-Run specific test suites:
-```bash
-# Unit tests only
-pytest tests/unit/
-
-# Integration tests only
-pytest tests/integration/
-
-# Performance tests
-pytest tests/integration/test_overpass_client_performance.py
-```
-
-## ⚡ Performance Metrics
-
-- **GPX Upload:** < 2 seconds (2MB file)
-- **POI Data Retrieval:** < 2 seconds
-- **Complete Pipeline:** < 9 seconds
-  - BBox Creation: < 1s
-  - Overpass Query: < 5s
-  - POI Filtering: < 3s
-
-## 🔧 API Endpoints
-
-### `POST /gpx/upload`
-Upload a GPX file and receive route data.
-
-**Request:**
-- Content-Type: `multipart/form-data`
-- File: GPX file (max 2MB)
-
-**Response:**
-```json
-{
-  "route_id": "uuid",
-  "filename": "route.gpx",
-  "coordinates": [
-    {"lat": 52.5200, "lon": 13.4050},
-    ...
-  ]
-}
-```
-
-### `GET /pois/{route_id}`
-Get POIs (gas stations) along a route.
-
-**Parameters:**
-- `route_id` (path): Route UUID
-- `max_distance_km` (query, optional): Maximum distance from route (default: 1.0)
-
-**Response:**
-```json
-{
-  "markers": [
-    {"lat": 52.5200, "lon": 13.4050, "name": "Shell"}
-  ],
-  "table": [
-    {
-      "name": "Shell",
-      "distance": "5.2 km",
-      "deviation": "120m"
-    }
-  ]
-}
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
-## 👨‍💻 Author
-
-[arcticfade](https://github.com/arcticfade)
-
-## 🙏 Acknowledgments
-
-- OpenStreetMap contributors for map data
-- Overpass API for POI queries
-- Leaflet.js for mapping capabilities
+MIT. Author: [arcticfade](https://github.com/arcticfade).

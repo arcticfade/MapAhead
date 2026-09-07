@@ -1,5 +1,5 @@
-from route_calculator import RouteCalculator
-from route_storage import RoutePoint, RouteStorage
+from mapahead.route_calculator import RouteCalculator
+from mapahead.route_storage import RoutePoint, RouteStorage
 
 route_calculator = RouteCalculator()
 

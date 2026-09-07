@@ -1,9 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from gpx_parser import GPXParser
-from route_storage import RouteStorage
-from overpass_client import OverpassClient
+from mapahead.gpx_parser import GPXParser
+from mapahead.route_storage import RouteStorage
+from mapahead.overpass_client import OverpassClient
 
 MAX_FILE_SIZE_MB = 2
 MAX_FILE_SIZE_BYTES = int(MAX_FILE_SIZE_MB * 1024 * 1024)

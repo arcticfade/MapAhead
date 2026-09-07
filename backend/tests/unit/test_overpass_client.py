@@ -1,6 +1,6 @@
 from rtree import index
-from overpass_client import OverpassClient, RoutePoint, Route, POI 
-from route_storage import RouteStorage 
+from mapahead.overpass_client import OverpassClient, RoutePoint, Route, POI 
+from mapahead.route_storage import RouteStorage 
 import pytest
 import responses
 

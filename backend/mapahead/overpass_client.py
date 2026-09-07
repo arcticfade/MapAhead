@@ -1,8 +1,8 @@
 import requests 
 from typing import List 
-from route_storage import RoutePoint, Route
-from route_calculator import RouteCalculator    
-from poi import POI
+from mapahead.route_storage import RoutePoint, Route
+from mapahead.route_calculator import RouteCalculator    
+from mapahead.poi import POI
 
 class OverpassClient:
     """ 

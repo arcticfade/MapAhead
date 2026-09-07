@@ -1,4 +1,4 @@
-from gpx_parser import GPXParser
+from mapahead.gpx_parser import GPXParser
 import time
 import os
 

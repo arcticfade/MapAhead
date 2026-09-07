@@ -1,5 +1,5 @@
 import gpxpy
-from route_storage import RoutePoint
+from mapahead.route_storage import RoutePoint
 from typing import List
 
 class GPXParser:

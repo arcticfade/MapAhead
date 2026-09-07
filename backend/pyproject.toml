@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mapahead"
+version = "0.1.0"
+description = "Find and plan supply points (POIs) along GPX routes for ultracycling events."
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+    "fastapi[standard]==0.141.1",
+    "gpxpy==1.6.2",
+    "haversine==2.9.0",
+    "requests==2.34.2",
+    "rtree==1.4.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.1.1",
+    "responses==0.26.3",
+    "httpx==0.28.1",
+    "selenium==4.48.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["mapahead*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-m 'not live and not e2e'"
+markers = [
+    "live: hits the real Overpass API (network, slow, may be rate limited)",
+    "e2e: needs a browser (Selenium) and running frontend/backend servers",
+]
