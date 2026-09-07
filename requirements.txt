@@ -1,8 +1,8 @@
-fastapi==0.123.9
+fastapi==0.141.1
 gpxpy==1.6.2
 haversine==2.9.0
-pytest==9.0.1
-Requests==2.32.5
-responses==0.25.8
+pytest==9.1.1
+Requests==2.34.2
+responses==0.26.3
 rtree==1.4.1
-selenium==4.38.0
+selenium==4.48.0
