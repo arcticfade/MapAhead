@@ -67,7 +67,12 @@ class OverpassClient:
         out skel qt;
         """
         try:    
-            response = requests.post(self.overpass_url, data={"data": overpass_query}, timeout=30)
+            response = requests.post(
+                self.overpass_url, 
+                headers={"User-Agent": "MapAhead/0.1 (github.com/arcticfade/MapAhead)"},
+                data={"data": overpass_query}, 
+                timeout=30,
+                )
             response.raise_for_status()
             return response.json()
         except requests.exceptions.Timeout:
