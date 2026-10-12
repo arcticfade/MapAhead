@@ -4,6 +4,14 @@ from mapahead.route_storage import RoutePoint, Route
 from mapahead.route_calculator import RouteCalculator    
 from mapahead.poi import POI
 
+class OverpassError(Exception):
+    """The Overpass API failed or returned something unusable."""
+
+
+class OverpassTimeoutError(OverpassError):
+    """The Overpass API did not answer in time."""
+
+
 class OverpassClient:
     """ 
     Client to interact with the Overpass API for querying POIs along a route. 
@@ -75,24 +83,17 @@ class OverpassClient:
                 )
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.Timeout:
-            raise TimeoutError("Overpass API request timed out.")
+        except requests.exceptions.Timeout as e:
+            raise OverpassTimeoutError("Overpass API request timed out.") from e
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code
             if status_code == 429:
-                raise ConnectionError("Overpass API rate limit exceeded.")
-            elif status_code == 400: 
-                raise ValueError(f"Bad request to Overpass API: {str(e)}")
-            elif status_code >= 500 and status_code < 600:
-                raise ConnectionError(f"Overpass API server error: {str(e)}")
-            else: 
-                raise ConnectionError(f"Overpass API HTTP error {status_code}: {str(e)}")
+                raise OverpassError("Overpass API rate limit exceeded.") from e
+            raise OverpassError(f"Overpass API HTTP error {status_code}.") from e
         except requests.exceptions.JSONDecodeError as e:
-            raise ValueError(f"Invalid JSON response from Overpass API: {str(e)}")
-        except requests.exceptions.ConnectionError as e:
-            raise ConnectionError(f"Overpass API connection error: {str(e)}")
+            raise OverpassError("Invalid JSON response from Overpass API.") from e
         except requests.exceptions.RequestException as e:
-            raise ConnectionError(f"Overpass API request failed: {str(e)}")
+            raise OverpassError(f"Overpass API request failed: {e}") from e
 
     def filter_pois(self, overpass_poi_data: dict, max_distance_to_route_km: float = 1.0) -> List[POI]:
         """
@@ -119,7 +120,7 @@ class OverpassClient:
                 poi = POI(
                     lat=element['lat'],
                     lon=element['lon'],
-                    name=name if name else "Unnamed Gas Station",
+                    name=name or None,
                     distance_to_route=distance_to_route_km,
                     distance_on_route=distance_along_route
                 )

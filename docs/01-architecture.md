@@ -67,10 +67,23 @@ Target module responsibilities (Phase 1):
 
 FastAPI generates the OpenAPI document at `/openapi.json` (interactive docs at `/docs`). In Phase 2.2 the Angular client is generated from it. Breaking changes to responses require regenerating the client in the same commit.
 
-Current endpoints (Phase 0, unchanged from the school project):
+Current endpoints:
 
-- `POST /gpx/upload` (multipart, max 2 MB) -> `{route_id, filename, coordinates[]}`
-- `GET /pois/{route_id}?max_distance_km=1.0` -> `{markers[], table[]}` (strings in `table`, to be replaced by numbers in Phase 1.1)
+- `POST /gpx/upload` (multipart, max 2 MB) -> `RouteUploadResponse {route_id, filename, coordinates[{lat, lon}]}`
+- `GET /pois/{route_id}?max_distance_km=1.0` (`0 < max_distance_km <= 5`) -> `PoiListResponse {route_id, max_distance_km, pois[]}`; each POI is `{name | null, lat, lon, distance_on_route_km, distance_to_route_m}`, sorted by `distance_on_route_km`. Numbers only, units in the field names.
+
+Error mapping (the HTTP boundary in `main.py` translates; parser and client raise plain Python exceptions, see [concepts/api-contracts-and-errors.md](concepts/api-contracts-and-errors.md)):
+
+| Status | Endpoint | Cause | Raised as |
+|---|---|---|---|
+| 400 | upload | file name does not end in `.gpx` | `HTTPException` in handler |
+| 413 | upload | file larger than 2 MB | `HTTPException` in handler |
+| 422 | upload | not parseable as GPX, or no track points | `GPXParseError` |
+| 422 | pois | `max_distance_km` out of range | FastAPI `Query` validation |
+| 404 | pois | unknown `route_id` | `HTTPException` in handler |
+| 502 | pois | Overpass returned an HTTP error or invalid JSON | `OverpassError` |
+| 504 | pois | Overpass request timed out | `OverpassTimeoutError` |
+| 500 | any | bug in our code | unhandled, FastAPI default |
 
 ## Frontend (Phase 2)
 

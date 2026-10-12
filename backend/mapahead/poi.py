@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from typing import Optional
 @dataclass
 class POI:
     """Represents a Point of Interest (POI) 
@@ -13,6 +13,6 @@ class POI:
     """
     lat: float
     lon: float
-    name: str
+    name: Optional[str]
     distance_to_route: float
     distance_on_route: float

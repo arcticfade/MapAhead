@@ -1,5 +1,5 @@
 from rtree import index
-from mapahead.overpass_client import OverpassClient, RoutePoint, Route, POI 
+from mapahead.overpass_client import OverpassClient, OverpassError, RoutePoint, Route, POI 
 from mapahead.route_storage import RouteStorage 
 import pytest
 import responses
@@ -122,7 +122,7 @@ def test_rate_limiting_error(overpass_client, bbox):
         json = {"error" : "Rate limit exceed"},
         status = 429
     )
-    with pytest.raises(ConnectionError, match="Overpass API rate limit exceeded."):
+    with pytest.raises(OverpassError, match="Overpass API rate limit exceeded."):
         overpass_client.query_gas_station(bbox)
         
 @responses.activate
@@ -143,5 +143,12 @@ def test_invalid_json(overpass_client, bbox):
         "http://overpass-api.de/api/interpreter",
         body='{"invalid":',
         status = 200)
-    with pytest.raises(ValueError):
+    with pytest.raises(OverpassError):
         overpass_client.query_gas_station(bbox)
+
+@responses.activate
+def test_request_identifies_mapahead(overpass_client, bbox):
+    """Overpass rejects anonymous default User-Agents with 406."""
+    responses.post("http://overpass-api.de/api/interpreter", json={"elements": []}, status=200)
+    overpass_client.query_gas_station(bbox)
+    assert responses.calls[0].request.headers["User-Agent"].startswith("MapAhead/")

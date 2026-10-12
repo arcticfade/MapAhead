@@ -86,25 +86,11 @@ def test_poi_data_response_time():
     assert response.status_code == 200
     data = response.json()
     
-    assert "markers" in data
-    assert len(data["markers"]) > 0
-    
-    marker = data["markers"][0]
-    assert "lat" in marker  
-    assert "lon" in marker  
-    assert "name" in marker  
-    
-    assert "table" in data
-    assert len(data["table"]) > 0
-    
-    table_entry = data["table"][0]
-    assert "distance" in table_entry  
-    assert "deviation" in table_entry  
-    assert "name" in table_entry  
-    
-    assert isinstance(marker["lat"], float)
-    assert isinstance(marker["lon"], float)
-    assert isinstance(marker["name"], str)
-    assert isinstance(table_entry["distance"], str)  
-    assert isinstance(table_entry["deviation"], str)  
-    assert isinstance(table_entry["name"], str)
+    assert len(data["pois"]) > 0
+
+    poi = data["pois"][0]
+    assert isinstance(poi["lat"], float)
+    assert isinstance(poi["lon"], float)
+    assert poi["name"] is None or isinstance(poi["name"], str)
+    assert isinstance(poi["distance_on_route_km"], float)
+    assert isinstance(poi["distance_to_route_m"], float)

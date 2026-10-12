@@ -19,7 +19,8 @@ Requires Python 3.12+.
 ```bash
 cd backend
 python3 -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
+source .venv/bin/activate          
+# Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 fastapi dev mapahead/main.py --port 5000
 ```
