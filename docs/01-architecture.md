@@ -37,7 +37,8 @@ backend/
 ├── mapahead/
 │   ├── main.py            FastAPI app, CORS, routes            (Phase 1.8: app factory + routers)
 │   ├── gpx_parser.py      GPX bytes -> list[RoutePoint]        (-> services/)
-│   ├── route_storage.py   RoutePoint, Route, in-memory store   (-> domain/ + services/)
+│   ├── geo.py             pure math (haversine_km), no mapahead imports (-> domain/)
+│   ├── route_storage.py   RoutePoint, Route (+ cumulative_km), in-memory store   (-> domain/ + services/)
 │   ├── route_calculator.py distance and nearest-point helpers  (-> services/)
 │   ├── overpass_client.py Overpass HTTP + POI filtering        (-> clients/ + services/)
 │   └── poi.py             POI dataclass                        (-> domain/)
@@ -60,7 +61,7 @@ Target module responsibilities (Phase 1):
 ## Data flow for "show POIs along a route"
 
 1. `POST /gpx/upload`: bytes -> `GPXParser.parse()` -> `RouteStorage.store()` builds an R-tree over the points and returns a `route_id`.
-2. `GET /pois/{route_id}?max_distance_km=`: load route -> bounding box (Phase 1.6: corridor) -> Overpass query -> for each element: nearest route point via R-tree, haversine deviation, cumulative km -> filter by deviation -> sort by km.
+2. `GET /pois/{route_id}?max_distance_km=`: load route -> bounding box (Phase 1.6: corridor) -> Overpass query -> for each element: nearest route point via R-tree, haversine deviation, cumulative km (precomputed prefix sum on `Route.cumulative_km`, a lookup) -> filter by deviation -> sort by km.
 3. Frontend draws the polyline and the markers, renders the table.
 
 ## API contract

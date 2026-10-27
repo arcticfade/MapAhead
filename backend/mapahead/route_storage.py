@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import uuid
 from typing import List, Dict, Optional
 from threading import Lock
+from mapahead.geo import haversine_km
+
 
 @dataclass
 class RoutePoint:
@@ -28,10 +30,22 @@ class Route:
     points: List[RoutePoint]
     id: str
     rtree: index.Index
+    cumulative_km: List[float]
     def __init__(self, points: List[RoutePoint], id: str, rtree: index.Index):
         self.points = points
         self.id = id
         self.rtree = rtree
+        self.cumulative_km = self._build_cumulative_km(points)
+
+    @staticmethod
+    def _build_cumulative_km(route: List[RoutePoint]) -> List[float]:
+        com_dist = 0.0
+        out = [0.0]
+        for a, b in zip(route, route[1:]):
+            com_dist += haversine_km(a.lat, a.lon, b.lat, b.lon)
+            out.append(com_dist)
+        return out
+
 
 
 class RouteStorage:

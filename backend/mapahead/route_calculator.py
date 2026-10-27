@@ -1,5 +1,5 @@
 from mapahead.route_storage import RoutePoint, Route
-from haversine import haversine
+from mapahead.geo import haversine_km
 
 class RouteCalculator:
     """
@@ -7,14 +7,14 @@ class RouteCalculator:
     """
     def haversine_distance(self, point1: RoutePoint, point2: RoutePoint) -> float:
         """
-        Calculate the Haversine distance between two RoutePoints with the harversine libary.
+        Calculate the Haversine distance between two RoutePoints via `geo.haversine_km`.
         Args: 
             point1 (RoutePoint): The first route point.
             point2 (RoutePoint): The second route point. 
         Returns: 
             float: Distance in kilometers.
         """
-        return haversine((point1.lat, point1.lon), (point2.lat, point2.lon))
+        return haversine_km(point1.lat, point1.lon, point2.lat, point2.lon)
 
     def find_nearest_route_point_index(self, route: Route, poi_point: RoutePoint) -> int:
         """
@@ -38,8 +38,7 @@ class RouteCalculator:
             float: Distance on route in kilometers.
         """
         index = self.find_nearest_route_point_index(route, point)
-        distance = 0.0
-        for i in range(index):
-            distance += self.haversine_distance(route.points[i], route.points[i + 1])
-        return distance
+
+        return route.cumulative_km[index]
+
     

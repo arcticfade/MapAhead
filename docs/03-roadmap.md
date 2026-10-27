@@ -44,7 +44,9 @@ Verdict: the domain logic (parse, index, query, filter, sort) is a sound seed. T
   - [x] API contract section of `01-architecture.md` updated.
   - [x] Adapt the old `Frontend/static/script.js` to the new response (Claude).
   - Done when: `pytest -q` is green; the API contract section of `01-architecture.md` is updated; the old `Frontend/script.js` is adapted to the new response (Claude, it is throwaway).
-- [ ] 1.2 Precompute cumulative distance on store; `distance_on_route` becomes a lookup. *Owner*
+- [x] 1.2 Precompute cumulative distance on store; `distance_on_route` becomes a lookup. *Owner*
+  - [x] `mapahead/geo.py` leaf module for `haversine_km`, so `route_storage` and `route_calculator` share it without a circular import (Claude).
+  - [x] `Route.cumulative_km` prefix sum, `calculate_distance_on_route` as lookup (owner). Tests: `tests/unit/test_route_storage.py`, `test_geo.py`.
 - [ ] 1.3 Nearest point on segment (shapely projection). Concept note: haversine vs local metric projection. *Owner*
 - [ ] 1.4 Parse `<rte>` and `<wpt>` in addition to `<trk>`. *Owner*
 - [ ] 1.5 `POICategory` registry (fuel, supermarket, drinking_water, bakery, bicycle shop, restaurant, pharmacy, ATM, hotel, toilets); `GET /api/categories`. *Owner*
