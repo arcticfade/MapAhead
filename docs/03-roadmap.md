@@ -33,7 +33,7 @@ Verdict: the domain logic (parse, index, query, filter, sort) is a sound seed. T
 
 ## Phase 1: Backend refactor and bug fixes
 
-- [ ] 1.1 Pydantic response schemas returning numbers; fix 413-becomes-500. Claude writes failing tests, owner makes them pass. *Owner*
+- [x] 1.1 Pydantic response schemas returning numbers; fix 413-becomes-500. Claude writes failing tests, owner makes them pass. *Owner*
   - Spec: `backend/tests/integration/test_api.py`. Work in `mapahead/schemas.py`, `main.py`, and where needed `overpass_client.py` / `gpx_parser.py`. Concept: [concepts/api-contracts-and-errors.md](concepts/api-contracts-and-errors.md).
   - [x] Schemas in `mapahead/schemas.py` (owner draft, finished by Claude after review: `BaseModel`, unit-suffixed field names, `PoiResponse` kept apart from domain `POI`).
   - [x] Wire `response_model` into `main.py`, return numbers.
@@ -42,7 +42,7 @@ Verdict: the domain logic (parse, index, query, filter, sort) is a sound seed. T
   - [x] Malformed or empty GPX → 422 via `GPXParseError` in `gpx_parser.py`, mapped in `main.py`.
   - [x] `max_distance_km` range via `Query` (0 < x <= 5); Overpass HTTP error → 502, timeout → 504 (`OverpassError`, `OverpassTimeoutError`).
   - [x] API contract section of `01-architecture.md` updated.
-  - [ ] Adapt the old `Frontend/script.js` to the new response (Claude, deferred; step 1.1 stays open until then).
+  - [x] Adapt the old `Frontend/static/script.js` to the new response (Claude).
   - Done when: `pytest -q` is green; the API contract section of `01-architecture.md` is updated; the old `Frontend/script.js` is adapted to the new response (Claude, it is throwaway).
 - [ ] 1.2 Precompute cumulative distance on store; `distance_on_route` becomes a lookup. *Owner*
 - [ ] 1.3 Nearest point on segment (shapely projection). Concept note: haversine vs local metric projection. *Owner*

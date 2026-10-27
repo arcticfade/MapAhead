@@ -24,6 +24,10 @@ document.getElementById('gpx-upload').addEventListener('change', async function(
         });
 
         const data = await response.json();
+        if (!response.ok) {
+            alert(data.detail || 'Upload failed.');
+            return;
+        }
         currentRouteID = data.route_id;
         
         if (currentRoute){
@@ -42,16 +46,24 @@ document.getElementById('gpx-upload').addEventListener('change', async function(
         console.error('Error uploading GPX file:', error);}
     });
 
+function poiName(poi) {
+    return poi.name ?? 'Unnamed';
+}
+
 async function loadPOIs() {
     try {
         const response = await fetch(`http://localhost:5000/pois/${currentRouteID}`);
         
         const data = await response.json();
-        
+        if (!response.ok) {
+            alert(data.detail || 'Failed to load POIs.');
+            return;
+        }
+
         // Add markers to map
-        data.markers.forEach(marker => {
-            const newMarker = L.marker([marker.lat, marker.lon])
-                .bindPopup(marker.name)
+        data.pois.forEach(poi => {
+            const newMarker = L.marker([poi.lat, poi.lon])
+                .bindPopup(poiName(poi))
                 .addTo(map);
             currentMarkers.push(newMarker);
         });
@@ -61,13 +73,19 @@ async function loadPOIs() {
         const poiTableBody = document.getElementById('poi-tbody');
         poiTableBody.innerHTML = ''; 
 
-        data.table.forEach(poi => {
+        data.pois.forEach(poi => {
             const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${poi.distance}</td>
-                <td>${poi.deviation}</td>
-                <td>${poi.name}</td>
-            `;
+            // The API returns numbers; formatting is the client's job.
+            // textContent (not innerHTML) so OSM names cannot inject markup.
+            [
+                `${poi.distance_on_route_km.toFixed(1)} km`,
+                `${Math.round(poi.distance_to_route_m)} m`,
+                poiName(poi),
+            ].forEach(text => {
+                const cell = document.createElement('td');
+                cell.textContent = text;
+                row.appendChild(cell);
+            });
             poiTableBody.appendChild(row);
         });
 
