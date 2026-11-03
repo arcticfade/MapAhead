@@ -66,7 +66,7 @@ class OverpassClient:
                 dict: The JSON response from the Overpass API containing POI data.            
          """
         overpass_query = f"""
-        [out:json];
+        [out:json][timeout:90];
         (
         node["amenity"="fuel"]({bbox['south']},{bbox['west']},{bbox['north']},{bbox['east']});
         );
@@ -79,7 +79,7 @@ class OverpassClient:
                 self.overpass_url, 
                 headers={"User-Agent": "MapAhead/0.1 (github.com/arcticfade/MapAhead)"},
                 data={"data": overpass_query}, 
-                timeout=30,
+                timeout=100,
                 )
             response.raise_for_status()
             return response.json()
