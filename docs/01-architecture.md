@@ -61,7 +61,7 @@ Target module responsibilities (Phase 1):
 ## Data flow for "show POIs along a route"
 
 1. `POST /gpx/upload`: bytes -> `GPXParser.parse()` -> `RouteStorage.store()` builds an R-tree over the points and returns a `route_id`.
-2. `GET /pois/{route_id}?max_distance_km=`: load route -> bounding box (Phase 1.6: corridor) -> Overpass query -> for each element: nearest route point via R-tree, haversine deviation, cumulative km (precomputed prefix sum on `Route.cumulative_km`, a lookup) -> filter by deviation -> sort by km.
+2. `GET /pois/{route_id}?max_distance_km=`: load route -> bounding box (Phase 1.6: corridor) -> Overpass query -> for each element: `RouteCalculator.locate` (R-tree nearest vertices as candidates, projection onto their segments for the deviation, km = prefix sum `Route.cumulative_km` at the segment start + fraction of the segment) -> filter by deviation -> sort by km.
 3. Frontend draws the polyline and the markers, renders the table.
 
 ## API contract

@@ -47,7 +47,8 @@ Verdict: the domain logic (parse, index, query, filter, sort) is a sound seed. T
 - [x] 1.2 Precompute cumulative distance on store; `distance_on_route` becomes a lookup. *Owner*
   - [x] `mapahead/geo.py` leaf module for `haversine_km`, so `route_storage` and `route_calculator` share it without a circular import (Claude).
   - [x] `Route.cumulative_km` prefix sum, `calculate_distance_on_route` as lookup (owner). Tests: `tests/unit/test_route_storage.py`, `test_geo.py`.
-- [ ] 1.3 Nearest point on segment (shapely projection). Concept note: haversine vs local metric projection. *Owner*
+- [x] 1.3 Nearest point on segment. *Claude (on owner's request)*
+  - Scope cut after measuring: test routes have median vertex gaps of 21 to 24 m, so the vertex error is tens of metres. No shapely/pyproj; R-tree candidates + projection in a local flat frame (`geo.project_onto_segment`, `RouteCalculator.locate`). Concept: [concepts/point-to-segment-projection.md](concepts/point-to-segment-projection.md).
 - [ ] 1.4 Parse `<rte>` and `<wpt>` in addition to `<trk>`. *Owner*
 - [ ] 1.5 `POICategory` registry (fuel, supermarket, drinking_water, bakery, bicycle shop, restaurant, pharmacy, ATM, hotel, toilets); `GET /api/categories`. *Owner*
 - [ ] 1.6 Overpass query from selected categories; corridor query instead of whole-route bbox. Concept note: Overpass QL, rate limits, caching. *Owner*
