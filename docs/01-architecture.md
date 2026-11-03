@@ -79,7 +79,7 @@ Error mapping (the HTTP boundary in `main.py` translates; parser and client rais
 |---|---|---|---|
 | 400 | upload | file name does not end in `.gpx` | `HTTPException` in handler |
 | 413 | upload | file larger than 2 MB | `HTTPException` in handler |
-| 422 | upload | not parseable as GPX, or no track points | `GPXParseError` |
+| 422 | upload | not parseable as GPX, or no track/route points (`<trk>` first, then `<rte>`; `<wpt>`-only is rejected) | `GPXParseError` |
 | 422 | pois | `max_distance_km` out of range | FastAPI `Query` validation |
 | 404 | pois | unknown `route_id` | `HTTPException` in handler |
 | 502 | pois | Overpass returned an HTTP error or invalid JSON | `OverpassError` |
