@@ -14,6 +14,7 @@ import responses
 from fastapi.testclient import TestClient
 
 from mapahead.main import app
+from mapahead.poi_category import CategoryId
 
 OVERPASS_URL = "http://overpass-api.de/api/interpreter"
 
@@ -186,3 +187,24 @@ def test_pois_overpass_timeout_is_504():
     response = client.get(f"/pois/{route_id}")
 
     assert response.status_code == 504
+
+
+# --- Categories -----------------------------------------------------------------
+
+def test_categories_lists_every_registered_category():
+    response = client.get("/categories")
+
+    assert response.status_code == 200
+    categories = response.json()["categories"]
+    assert [c["id"] for c in categories] == [c.value for c in CategoryId]
+    assert {"id": "fuel"} in categories
+
+
+def test_categories_do_not_expose_osm_tags():
+    categories = client.get("/categories").json()["categories"]
+
+    assert all(set(c) == {"id"} for c in categories)
+
+
+def test_categories_declares_response_model():
+    assert response_schema_ref("/categories", "get") == "#/components/schemas/CategoryListResponse"

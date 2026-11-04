@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from mapahead.gpx_parser import GPXParser, GPXParseError
 from mapahead.route_storage import RouteStorage
 from mapahead.overpass_client import OverpassClient, OverpassError, OverpassTimeoutError
-from mapahead.schemas import PoiListResponse, PoiResponse, RouteUploadResponse
+from mapahead.poi_category import CATEGORIES
+from mapahead.schemas import PoiListResponse, PoiResponse, RouteUploadResponse, CategoryListResponse, CategoryResponse
 
 MAX_FILE_SIZE_MB = 2
 MAX_FILE_SIZE_BYTES = int(MAX_FILE_SIZE_MB * 1024 * 1024)
@@ -91,4 +92,16 @@ async def get_pois(route_id: str, max_distance_km: Annotated[float, Query(gt=0, 
             )
             for poi in filtered_pois
         ],
+    )
+
+
+@app.get("/categories", response_model=CategoryListResponse)
+def get_categories():
+    """
+    Endpoint to list all POI categories that can be searched for.
+        Returns:
+            CategoryListResponse: id of every registered category.
+    """
+    return CategoryListResponse(
+        categories=[CategoryResponse(id=c.id) for c in CATEGORIES.values()]
     )

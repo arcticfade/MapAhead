@@ -9,7 +9,7 @@
 | **Deviation / distance to route** | Shortest distance from a POI to the route, in metres. Riders care about this because every metre off route is ridden twice. |
 | **Corridor** | The area within `max_distance` of the route. POIs outside the corridor are ignored. Currently approximated by one bounding box around the whole route (Phase 1.6 replaces it). |
 | **POI** | Point of interest from OpenStreetMap: a node (or later way centroid) with tags, e.g. `amenity=fuel`. |
-| **POI category** | A named group of OSM tag filters the user can toggle, e.g. *Fuel* (`amenity=fuel`), *Supermarket* (`shop=supermarket`), *Water* (`amenity=drinking_water`). Defined in code, served by `GET /api/categories` from Phase 1.5. |
+| **POI category** | A named group of OSM tag filters the user can toggle, e.g. *Fuel* (`amenity=fuel`), *Supermarket* (`shop=supermarket`), *Water* (`amenity=drinking_water`). Defined in code, served by `GET /categories` (IDs only) since Phase 1.5. |
 | **Supply point** | A POI the planner has *chosen* for an event, with notes and a planned arrival km. Introduced in Phase 3.3. |
 | **Event** | A named ride with one route and a set of supply points. Introduced in Phase 3.3. |
 | **Overpass API** | The read-only query service for OpenStreetMap data. Public instances are rate limited; large bounding boxes time out. |

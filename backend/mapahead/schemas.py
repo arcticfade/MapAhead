@@ -49,3 +49,17 @@ class PoiListResponse(BaseModel):
     route_id: str
     max_distance_km: float
     pois: list[PoiResponse]
+
+
+class CategoryResponse(BaseModel):
+    """A POI category the user can search for.
+
+    Attributes:
+        id: Stable identifier, sent back by the client to select categories.
+    """
+    id: str
+
+
+class CategoryListResponse(BaseModel):
+    """Result of `GET /categories`."""
+    categories: list[CategoryResponse]

@@ -72,6 +72,7 @@ Current endpoints:
 
 - `POST /gpx/upload` (multipart, max 2 MB) -> `RouteUploadResponse {route_id, filename, coordinates[{lat, lon}]}`
 - `GET /pois/{route_id}?max_distance_km=1.0` (`0 < max_distance_km <= 5`) -> `PoiListResponse {route_id, max_distance_km, pois[]}`; each POI is `{name | null, lat, lon, distance_on_route_km, distance_to_route_m}`, sorted by `distance_on_route_km`. Numbers only, units in the field names.
+- `GET /categories` -> `CategoryListResponse {categories[{id}]}`, one entry per registry category, in registry order. IDs only: display names (and later icons) are a frontend concern, keyed by `id`.
 
 Error mapping (the HTTP boundary in `main.py` translates; parser and client raise plain Python exceptions, see [concepts/api-contracts-and-errors.md](concepts/api-contracts-and-errors.md)):
 
